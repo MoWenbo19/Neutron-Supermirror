@@ -1,29 +1,28 @@
 # Neutron Supermirror Library
-# 中子超镜算法常用函数包
 
-作者及邮箱:  
-莫文博  
+Author and email:  
+Wenbo Mo  
 mwb19@mails.tsinghua.edu.cn  
-吴华锐  
+Huarui Wu    
 huarui92@163.com  
-王学武  
+Xuewu Wang  
 wangxuewu@tsinghua.edu.cn  
-清华大学工程物理系  
-清华大学粒子技术与辐射成像教育部重点实验室  
-北京，100084  
+Department of Engineering Physics, Tsinghua University  
+Key Laboratory of Particle & Radiation Imaging (Tsinghua University), Ministry of Education  
+Beijing 100084, China  
 
 ------------------------------------------------------
-## 更新日志  
+## Update log  
 
 ### Version 1
 2019.03.27  
 version1.0.0  
-新增基本反射率计算函数  
+* Added basic reflectivity calculation function  
 
 ### Version 2
 2019.03.31  
 version2.0.0  
-新增引入粗糙度条件下的反射率计算函数  
+* Added reflectivity calculation function under the introduction of roughness  
 2019.04.03  
 version2.1.0  
 新增引入吸收条件下的反射率计算函数  
