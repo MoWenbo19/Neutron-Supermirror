@@ -51,27 +51,33 @@ version3.1.0
 
 2019.04.12  
 version3.2.0  
-新增反射率曲线拟合函数  
+* Add reflectance curve fitting function  
+
 2019.04.12  
 version3.3.0  
-新增参数优化系列函数  
-新增SM算法调参函数  
-新增ABC算法调参函数  
+* Add parameter optimization series function
+* Add SM algorithm tuning function
+* Add ABC algorithm tuning function  
+
 2019.04.13  
 version3.4.0  
-新增ABC算法实现函数（使用优化后的参数）  
-新增EAYAO算法调参函数  
+* Add ABC algorithm implementation function (using optimized parameters)
+* Add EAYAO algorithm tuning function  
+
 2019.04.14  
 version3.5.0  
-新增反射率曲线拟合函数2  
-新增IC算法调参函数  
+* Add reflectivity curve fitting function 2
+* Add IC algorithm tuning function  
+
 2019.04.18  
 version3.6.0  
-新增引入厚度制造误差后的膜对平均反射率、拟合m值的计算函数  
+* Add calculation function for average reflectance and fitted m value of film after introducing thickness manufacturing error  
+
 2019.04.19  
 version3.6.5  
-修复平均反射率计算函数中存在的bug：当输入m值非常接近于1时，分母为0  
-新增计算全m范围的平均反射率的函数  
+* Fix bug in the average reflectivity calculation function: when the input m value is very close to 1, the denominator is 0
+* Add a function to calculate the average reflectance of the full m range  
+
 2019.04.23  
 version3.7.0  
 完善了引入厚度制造误差后的膜对平均反射率、拟合m值的计算函数的功能，加入了无误差情况的比较  
