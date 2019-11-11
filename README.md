@@ -12,6 +12,11 @@ Department of Engineering Physics, Tsinghua University
 Key Laboratory of Particle & Radiation Imaging (Tsinghua University), Ministry of Education  
 Beijing 100084, China  
 
+------------------------------------------------------  
+
+Update the library by input  
+*python setup.py install*
+
 ------------------------------------------------------
 ## Update log  
 
