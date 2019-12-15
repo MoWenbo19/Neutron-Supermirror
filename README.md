@@ -147,4 +147,4 @@ version4.7.0
 
 2019.12.15  
 version4.8.0  
-* The unit of wave vector involved in all functions is adjusted to $nm^{-1}$, and the unit of scattering length density is adjusted to $nm^{-2}$  
+* The unit of wave vector involved in all functions is adjusted to $nm^{-1}$, and the unit of scattering length density is adjusted to ${nm}^{-2} $  
