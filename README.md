@@ -5,7 +5,7 @@ Author and email:
 Wenbo Mo  
 mwb19@mails.tsinghua.edu.cn  
 Huarui Wu    
-nghuaruiwu@gmail.com 
+nghuaruiwu@gmail.com  
 Xuewu Wang  
 wangxuewu@tsinghua.edu.cn  
 Department of Engineering Physics, Tsinghua University  
@@ -144,3 +144,7 @@ version4.7.0
 * The calculation results of the reflectivity calculation function of these two kinds of methods are consistent
 * The calculation function based on the quantum mechanical method adds a "2" after their names to distinguish it and the calculation function based on the matrix method
 * The function with the same name can be arbitrarily selected, and the input parameters and output data are the same  
+
+2019.12.15  
+version4.8.0  
+* The unit of wave vector involved in all functions is adjusted to $nm^{-1}$, and the unit of scattering length density is adjusted to $nm^{-2}$  
