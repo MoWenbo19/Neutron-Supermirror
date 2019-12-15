@@ -23,13 +23,13 @@ A1 = 58.6934
 A2 = 47.867
 
 #中间参数计算：
-#计算Ni,Ti两种材料的散射长度密度ρb（单位：1e14m^-2）
-#已知基底材料Si的散射长度密度ρbs（单位：1e14m^-2）
-rhob1 = b1*rho1*6.022/A1
-rhob2 = b2*rho2*6.022/A2
-rhobs = 2.08
+#计算Ni,Ti两种材料的散射长度密度ρb（单位：nm^-2）
+#已知基底材料Si的散射长度密度ρbs（单位：nm^-2）
+rhob1 = b1*rho1*6.022/A1*1e-4
+rhob2 = b2*rho2*6.022/A2*1e-4
+rhobs = 2.08*1e-4
 
-#计算Ni的全反射临界波矢kc（单位：1e7m^-1=0.01nm^-1=1e-3Å-1）
+#计算Ni的全反射临界波矢kc（单位：nm^-1）
 kc = 2*math.sqrt(math.pi*rhob1)
 
 
@@ -40,7 +40,7 @@ kc = 2*math.sqrt(math.pi*rhob1)
 #Function1.1.1
 #理想条件（无粗糙度）下的反射率计算函数，采用矩阵方法
 #输入参数为：
-#垂直方向的波矢分量k0（单位：0.01nm^-1），
+#垂直方向的波矢分量k0（单位：nm^-1），
 #膜对序列d=[[1,d11,d12]……[n,dn1.dn2]]（膜层厚度单位：nm）
 #输出：多层膜对入射波矢垂直分量为k0的中子的反射率
 def Ref(k0,d=[]):
@@ -59,13 +59,13 @@ def Ref(k0,d=[]):
     j = 0 
     #每个膜对逐次计算反射率，从最底层迭代上去，psi=ikd为计算公式中e的复指数
     while j< len(d):
-        psi2 = complex(0,k2*d[len(d)-1-j][2]*0.01)
+        psi2 = complex(0,k2*d[len(d)-1-j][2])
         M2[0][0] = (k1+k2)*cmath.exp(-psi2)/(2*k1)
         M2[0][1] = (k1-k2)*cmath.exp(psi2)/(2*k1)
         M2[1][0] = (k1-k2)*cmath.exp(-psi2)/(2*k1)
         M2[1][1] = (k1+k2)*cmath.exp(psi2)/(2*k1)
         M = np.dot(M2,M)
-        psi1 = complex(0,k1*d[len(d)-1-j][1]*0.01)
+        psi1 = complex(0,k1*d[len(d)-1-j][1])
         M1[0][0] = (k1+k2)*cmath.exp(-psi1)/(2*k2)
         M1[0][1] = (k2-k1)*cmath.exp(psi1)/(2*k2)
         M1[1][0] = (k2-k1)*cmath.exp(-psi1)/(2*k2)
@@ -80,14 +80,14 @@ def Ref(k0,d=[]):
 #Function1.1.2
 #考虑材料吸收中子条件下的反射率计算函数，采用矩阵方法
 #输入参数为：
-#垂直方向的波矢分量k0（单位：0.01nm^-1），
+#垂直方向的波矢分量k0（单位：nm^-1），
 #入射中子波长lambda0（单位：nm），
 #膜对序列d=[[1,d11,d12]……[n,dn1.dn2]]（膜层厚度单位：nm）
 #输出：多层膜对入射波矢垂直分量为k0的中子的反射率
 def RefAbs(k0,lambda0,d=[]):
     #计算两种材料的复数散射长度密度
-    rhoba1 = rho1*6.022/A1*complex(b1,-sigma1/(2*lambda0)*10**(-4))
-    rhoba2 = rho2*6.022/A2*complex(b2,-sigma2/(2*lambda0)*10**(-4))
+    rhoba1 = rho1*6.022/A1*complex(b1,-sigma1/(2*lambda0)*1e-4)*1e-4
+    rhoba2 = rho2*6.022/A2*complex(b2,-sigma2/(2*lambda0)*1e-4)*1e-4
     M = np.ones([2,2],dtype =complex)
     M2 = np.ones([2,2],dtype =complex)
     M1 = np.ones([2,2],dtype =complex)
@@ -101,13 +101,13 @@ def RefAbs(k0,lambda0,d=[]):
     j = 0 
     #每个膜对逐次计算反射率，从最底层迭代上去，psi=ikd为计算公式中e的复指数
     while j< len(d):
-        psi2 = complex(0,k2*d[len(d)-1-j][2]*0.01)
+        psi2 = complex(0,k2*d[len(d)-1-j][2])
         M2[0][0] = (k1+k2)*cmath.exp(-psi2)/(2*k1)
         M2[0][1] = (k1-k2)*cmath.exp(psi2)/(2*k1)
         M2[1][0] = (k1-k2)*cmath.exp(-psi2)/(2*k1)
         M2[1][1] = (k1+k2)*cmath.exp(psi2)/(2*k1)
         M = np.dot(M2,M)
-        psi1 = complex(0,k1*d[len(d)-1-j][1]*0.01)
+        psi1 = complex(0,k1*d[len(d)-1-j][1])
         M1[0][0] = (k1+k2)*cmath.exp(-psi1)/(2*k2)
         M1[0][1] = (k2-k1)*cmath.exp(psi1)/(2*k2)
         M1[1][0] = (k2-k1)*cmath.exp(-psi1)/(2*k2)
@@ -121,7 +121,7 @@ def RefAbs(k0,lambda0,d=[]):
 #粗糙度为常数值，且认为波矢经过膜层时不变的条件下的反射率计算函数，采用矩阵方法
 #此函数不推荐使用  
 #输入参数为：
-#垂直方向的波矢分量k0（单位：0.01nm^-1），
+#垂直方向的波矢分量k0（单位：nm^-1），
 #均方根界面粗糙度sigmaDW（单位：nm），
 #膜对序列d=[[1,d11,d12]……[n,dn1.dn2]]（膜层厚度单位：nm）
 #输出：多层膜对入射波矢垂直分量为k0的中子的反射率
@@ -141,13 +141,13 @@ def RefRou(k0,sigmaDW,d=[]):
     j = 0
     #每个膜对逐次计算反射率，从最底层迭代上去，psi=ikd为计算公式中e的复指数
     while j < len(d):
-        psi2 = complex(0,k2*d[len(d)-1-j][2]*0.01)
+        psi2 = complex(0,k2*d[len(d)-1-j][2])
         M2[0][0] = (k1+k2)*cmath.exp(-psi2)/(2*k1)
         M2[0][1] = (k1-k2)*cmath.exp(psi2)/(2*k1)
         M2[1][0] = (k1-k2)*cmath.exp(-psi2)/(2*k1)
         M2[1][1] = (k1+k2)*cmath.exp(psi2)/(2*k1)
         M = np.dot(M2,M)
-        psi1 = complex(0,k1*d[len(d)-1-j][1]*0.01)
+        psi1 = complex(0,k1*d[len(d)-1-j][1])
         M1[0][0] = (k1+k2)*cmath.exp(-psi1)/(2*k2)
         M1[0][1] = (k2-k1)*cmath.exp(psi1)/(2*k2)
         M1[1][0] = (k2-k1)*cmath.exp(-psi1)/(2*k2)
@@ -158,13 +158,13 @@ def RefRou(k0,sigmaDW,d=[]):
         j = j+1
     r = M[1][0]/M[0][0]
     #用Debye-Waller因子修正反射率
-    R = abs(r)**2*math.exp(-(2*sigmaDW*k0*0.01)**2)
+    R = abs(r)**2*math.exp(-(2*sigmaDW*k0)**2)
     return R
 
 #Function1.1.4
 #粗糙度为常数值条件下的反射率计算函数，采用矩阵方法
 #输入参数为：
-#垂直方向的波矢分量k0（单位：0.01nm^-1），
+#垂直方向的波矢分量k0（单位：nm^-1），
 #均方根界面粗糙度sigmaDW（单位：nm），
 #膜对序列d=[[1,d11,d12]……[n,dn1.dn2]]（膜层厚度单位：nm）
 #输出：多层膜对入射波矢垂直分量为k0的中子的反射率
@@ -175,26 +175,26 @@ def RefRouCon(k0,sigmaDW,d=[]):
     k1 = cmath.sqrt(k0**2-4*math.pi*rhob1)
     k2 = cmath.sqrt(k0**2-4*math.pi*rhob2)
     ks = cmath.sqrt(k0**2-4*math.pi*rhobs)
-    M[0][0] = (k2+ks)/(2*k2)*cmath.exp((sigmaDW*0.01)**2*k1*k2)
-    M[0][1] = (k2-ks)/(2*k2)*cmath.exp(-(sigmaDW*0.01)**2*k1*k2)
-    M[1][0] = (k2-ks)/(2*k2)*cmath.exp(-(sigmaDW*0.01)**2*k1*k2)
-    M[1][1] = (k2+ks)/(2*k2)*cmath.exp((sigmaDW*0.01)**2*k1*k2)
+    M[0][0] = (k2+ks)/(2*k2)*cmath.exp(sigmaDW**2*k1*k2)
+    M[0][1] = (k2-ks)/(2*k2)*cmath.exp(-sigmaDW**2*k1*k2)
+    M[1][0] = (k2-ks)/(2*k2)*cmath.exp(-sigmaDW**2*k1*k2)
+    M[1][1] = (k2+ks)/(2*k2)*cmath.exp(sigmaDW**2*k1*k2)
     #对矩阵元素进行归一化，防止膜层数目过多时矩阵元素数值过大溢出
     M = M/np.sum(M**2)
     j = 0
     #每个膜对逐次计算反射率，从最底层迭代上去，psi=ikd为计算公式中e的复指数
     while j < len(d):
-        psi2 = complex(0,k2*d[len(d)-1-j][2]*0.01)
-        M2[0][0] = (k1+k2)*cmath.exp(-psi2)/(2*k1)*cmath.exp((sigmaDW*0.01)**2*k1*k2)
-        M2[0][1] = (k1-k2)*cmath.exp(psi2)/(2*k1)*cmath.exp(-(sigmaDW*0.01)**2*k1*k2)
-        M2[1][0] = (k1-k2)*cmath.exp(-psi2)/(2*k1)*cmath.exp(-(sigmaDW*0.01)**2*k1*k2)
-        M2[1][1] = (k1+k2)*cmath.exp(psi2)/(2*k1)*cmath.exp((sigmaDW*0.01)**2*k1*k2)
+        psi2 = complex(0,k2*d[len(d)-1-j][2])
+        M2[0][0] = (k1+k2)*cmath.exp(-psi2)/(2*k1)*cmath.exp(sigmaDW**2*k1*k2)
+        M2[0][1] = (k1-k2)*cmath.exp(psi2)/(2*k1)*cmath.exp(-sigmaDW**2*k1*k2)
+        M2[1][0] = (k1-k2)*cmath.exp(-psi2)/(2*k1)*cmath.exp(-sigmaDW**2*k1*k2)
+        M2[1][1] = (k1+k2)*cmath.exp(psi2)/(2*k1)*cmath.exp(sigmaDW**2*k1*k2)
         M = np.dot(M2,M)
-        psi1 = complex(0,k1*d[len(d)-1-j][1]*0.01)
-        M1[0][0] = (k1+k2)*cmath.exp(-psi1)/(2*k2)*cmath.exp((sigmaDW*0.01)**2*k1*k2)
-        M1[0][1] = (k2-k1)*cmath.exp(psi1)/(2*k2)*cmath.exp(-(sigmaDW*0.01)**2*k1*k2)
-        M1[1][0] = (k2-k1)*cmath.exp(-psi1)/(2*k2)*cmath.exp(-(sigmaDW*0.01)**2*k1*k2)
-        M1[1][1] = (k1+k2)*cmath.exp(psi1)/(2*k2)*cmath.exp((sigmaDW*0.01)**2*k1*k2)
+        psi1 = complex(0,k1*d[len(d)-1-j][1])
+        M1[0][0] = (k1+k2)*cmath.exp(-psi1)/(2*k2)*cmath.exp(sigmaDW**2*k1*k2)
+        M1[0][1] = (k2-k1)*cmath.exp(psi1)/(2*k2)*cmath.exp(-sigmaDW**2*k1*k2)
+        M1[1][0] = (k2-k1)*cmath.exp(-psi1)/(2*k2)*cmath.exp(-sigmaDW**2*k1*k2)
+        M1[1][1] = (k1+k2)*cmath.exp(psi1)/(2*k2)*cmath.exp(sigmaDW**2*k1*k2)
         M = np.dot(M1,M)
         #对矩阵元素进行归一化，防止膜层数目过多时矩阵元素数值过大溢出
         M = M/np.sum(M**2)
@@ -205,7 +205,7 @@ def RefRouCon(k0,sigmaDW,d=[]):
 #Function1.1.5
 #粗糙度逐层增长条件下的反射率计算函数,采用矩阵方法
 #输入参数为：
-#垂直方向的波矢分量k0（单位：0.01nm^-1），
+#垂直方向的波矢分量k0（单位：nm^-1），
 #基底均方根粗糙度sigma0（单位：nm），
 #粗糙度增长率h（单位：nm）,
 #膜对序列d=[[1,d11,d12]……[n,dn1.dn2]]（膜层厚度单位：nm）
@@ -219,10 +219,10 @@ def RefRouGro(k0,sigma0,h,d=[]):
     ks = cmath.sqrt(k0**2-4*math.pi*rhobs)
     D = 0
     sigma = sigma0
-    M[0][0] = (k2+ks)/(2*k2)*cmath.exp((sigma*0.01)**2*k1*k2)
-    M[0][1] = (k2-ks)/(2*k2)*cmath.exp(-(sigma*0.01)**2*k1*k2)
-    M[1][0] = (k2-ks)/(2*k2)*cmath.exp(-(sigma*0.01)**2*k1*k2)
-    M[1][1] = (k2+ks)/(2*k2)*cmath.exp((sigma*0.01)**2*k1*k2)
+    M[0][0] = (k2+ks)/(2*k2)*cmath.exp(sigma**2*k1*k2)
+    M[0][1] = (k2-ks)/(2*k2)*cmath.exp(-sigma**2*k1*k2)
+    M[1][0] = (k2-ks)/(2*k2)*cmath.exp(-sigma**2*k1*k2)
+    M[1][1] = (k2+ks)/(2*k2)*cmath.exp(sigma**2*k1*k2)
     #对矩阵元素进行归一化，防止膜层数目过多时矩阵元素数值过大溢出
     M = M/np.sum(M**2)
     j = 0
@@ -231,19 +231,19 @@ def RefRouGro(k0,sigma0,h,d=[]):
         #计算前面的膜层的累计厚度
         D = D+d[len(d)-1-j][2]
         sigma = math.sqrt(sigma0**2+h*D)
-        psi2 = complex(0,k2*d[len(d)-1-j][2]*0.01)
-        M2[0][0] = (k1+k2)*cmath.exp(-psi2)/(2*k1)*cmath.exp((sigma*0.01)**2*k1*k2)
-        M2[0][1] = (k1-k2)*cmath.exp(psi2)/(2*k1)*cmath.exp(-(sigma*0.01)**2*k1*k2)
-        M2[1][0] = (k1-k2)*cmath.exp(-psi2)/(2*k1)*cmath.exp(-(sigma*0.01)**2*k1*k2)
-        M2[1][1] = (k1+k2)*cmath.exp(psi2)/(2*k1)*cmath.exp((sigma*0.01)**2*k1*k2)
+        psi2 = complex(0,k2*d[len(d)-1-j][2])
+        M2[0][0] = (k1+k2)*cmath.exp(-psi2)/(2*k1)*cmath.exp(sigma**2*k1*k2)
+        M2[0][1] = (k1-k2)*cmath.exp(psi2)/(2*k1)*cmath.exp(-sigma**2*k1*k2)
+        M2[1][0] = (k1-k2)*cmath.exp(-psi2)/(2*k1)*cmath.exp(-sigma**2*k1*k2)
+        M2[1][1] = (k1+k2)*cmath.exp(psi2)/(2*k1)*cmath.exp(sigma**2*k1*k2)
         M = np.dot(M2,M)
         D = D+d[len(d)-1-j][1]
         sigma = math.sqrt(sigma0**2+h*D)
-        psi1 = complex(0,k1*d[len(d)-1-j][1]*0.01)
-        M1[0][0] = (k1+k2)*cmath.exp(-psi1)/(2*k2)*cmath.exp((sigma*0.01)**2*k1*k2)
-        M1[0][1] = (k2-k1)*cmath.exp(psi1)/(2*k2)*cmath.exp(-(sigma*0.01)**2*k1*k2)
-        M1[1][0] = (k2-k1)*cmath.exp(-psi1)/(2*k2)*cmath.exp(-(sigma*0.01)**2*k1*k2)
-        M1[1][1] = (k1+k2)*cmath.exp(psi1)/(2*k2)*cmath.exp((sigma*0.01)**2*k1*k2)
+        psi1 = complex(0,k1*d[len(d)-1-j][1])
+        M1[0][0] = (k1+k2)*cmath.exp(-psi1)/(2*k2)*cmath.exp(sigma**2*k1*k2)
+        M1[0][1] = (k2-k1)*cmath.exp(psi1)/(2*k2)*cmath.exp(-sigma**2*k1*k2)
+        M1[1][0] = (k2-k1)*cmath.exp(-psi1)/(2*k2)*cmath.exp(-sigma**2*k1*k2)
+        M1[1][1] = (k1+k2)*cmath.exp(psi1)/(2*k2)*cmath.exp(sigma**2*k1*k2)
         M = np.dot(M1,M)
         #对矩阵元素进行归一化，防止膜层数目过多时矩阵元素数值过大溢出
         M = M/np.sum(M**2)
@@ -254,7 +254,7 @@ def RefRouGro(k0,sigma0,h,d=[]):
 #Function1.1.6
 #粗糙度逐层增长且增长率随机的条件下的反射率计算函数,采用矩阵方法
 #输入参数为：
-#垂直方向的波矢分量k0（单位：0.01nm^-1），
+#垂直方向的波矢分量k0（单位：nm^-1），
 #基底均方根粗糙度sigma0（单位：nm），
 #粗糙度增长率的随机变化范围hmin,hmax（单位：nm）,
 #膜对序列d=[[1,d11,d12]……[n,dn1.dn2]]（膜层厚度单位：nm）
@@ -268,10 +268,10 @@ def RefRouRan(k0,sigma0,hmin,hmax,d=[]):
     ks = cmath.sqrt(k0**2-4*math.pi*rhobs)
     D = 0
     sigma = sigma0
-    M[0][0] = (k2+ks)/(2*k2)*cmath.exp((sigma*0.01)**2*k1*k2)
-    M[0][1] = (k2-ks)/(2*k2)*cmath.exp(-(sigma*0.01)**2*k1*k2)
-    M[1][0] = (k2-ks)/(2*k2)*cmath.exp(-(sigma*0.01)**2*k1*k2)
-    M[1][1] = (k2+ks)/(2*k2)*cmath.exp((sigma*0.01)**2*k1*k2)
+    M[0][0] = (k2+ks)/(2*k2)*cmath.exp(sigma**2*k1*k2)
+    M[0][1] = (k2-ks)/(2*k2)*cmath.exp(-sigma**2*k1*k2)
+    M[1][0] = (k2-ks)/(2*k2)*cmath.exp(-sigma**2*k1*k2)
+    M[1][1] = (k2+ks)/(2*k2)*cmath.exp(sigma**2*k1*k2)
     #对矩阵元素进行归一化，防止膜层数目过多时矩阵元素数值过大溢出
     M = M/np.sum(M**2)
     j = 0
@@ -284,11 +284,11 @@ def RefRouRan(k0,sigma0,hmin,hmax,d=[]):
             sigma = math.sqrt(sigma0**2+h*D)
         else:
             sigma = 0
-        psi2 = complex(0,k2*d[len(d)-1-j][2]*0.01)
-        M2[0][0] = (k1+k2)*cmath.exp(-psi2)/(2*k1)*cmath.exp((sigma*0.01)**2*k1*k2)
-        M2[0][1] = (k1-k2)*cmath.exp(psi2)/(2*k1)*cmath.exp(-(sigma*0.01)**2*k1*k2)
-        M2[1][0] = (k1-k2)*cmath.exp(-psi2)/(2*k1)*cmath.exp(-(sigma*0.01)**2*k1*k2)
-        M2[1][1] = (k1+k2)*cmath.exp(psi2)/(2*k1)*cmath.exp((sigma*0.01)**2*k1*k2)
+        psi2 = complex(0,k2*d[len(d)-1-j][2])
+        M2[0][0] = (k1+k2)*cmath.exp(-psi2)/(2*k1)*cmath.exp(sigma**2*k1*k2)
+        M2[0][1] = (k1-k2)*cmath.exp(psi2)/(2*k1)*cmath.exp(-sigma**2*k1*k2)
+        M2[1][0] = (k1-k2)*cmath.exp(-psi2)/(2*k1)*cmath.exp(-sigma**2*k1*k2)
+        M2[1][1] = (k1+k2)*cmath.exp(psi2)/(2*k1)*cmath.exp(sigma**2*k1*k2)
         M = np.dot(M2,M)
         D = D+d[len(d)-1-j][1]
         h = random.uniform(hmin,hmax)
@@ -296,11 +296,11 @@ def RefRouRan(k0,sigma0,hmin,hmax,d=[]):
             sigma = math.sqrt(sigma0**2+h*D)
         else:
             sigma = 0
-        psi1 = complex(0,k1*d[len(d)-1-j][1]*0.01)
-        M1[0][0] = (k1+k2)*cmath.exp(-psi1)/(2*k2)*cmath.exp((sigma*0.01)**2*k1*k2)
-        M1[0][1] = (k2-k1)*cmath.exp(psi1)/(2*k2)*cmath.exp(-(sigma*0.01)**2*k1*k2)
-        M1[1][0] = (k2-k1)*cmath.exp(-psi1)/(2*k2)*cmath.exp(-(sigma*0.01)**2*k1*k2)
-        M1[1][1] = (k1+k2)*cmath.exp(psi1)/(2*k2)*cmath.exp((sigma*0.01)**2*k1*k2)
+        psi1 = complex(0,k1*d[len(d)-1-j][1])
+        M1[0][0] = (k1+k2)*cmath.exp(-psi1)/(2*k2)*cmath.exp(sigma**2*k1*k2)
+        M1[0][1] = (k2-k1)*cmath.exp(psi1)/(2*k2)*cmath.exp(-sigma**2*k1*k2)
+        M1[1][0] = (k2-k1)*cmath.exp(-psi1)/(2*k2)*cmath.exp(-sigma**2*k1*k2)
+        M1[1][1] = (k1+k2)*cmath.exp(psi1)/(2*k2)*cmath.exp(sigma**2*k1*k2)
         M = np.dot(M1,M)
         #对矩阵元素进行归一化，防止膜层数目过多时矩阵元素数值过大溢出
         M = M/np.sum(M**2)
@@ -311,7 +311,7 @@ def RefRouRan(k0,sigma0,hmin,hmax,d=[]):
 #Function1.1.7
 #考虑材料吸收中子,且粗糙度为常数值条件下的反射率计算函数,采用矩阵方法
 #输入参数为：
-#垂直方向的波矢分量k0（单位：0.01nm^-1），
+#垂直方向的波矢分量k0（单位：nm^-1），
 #入射中子波长lambda0（单位：nm），
 #均方根界面粗糙度sigmaDW（单位：nm），
 #膜对序列d=[[1,d11,d12]……[n,dn1.dn2]]（膜层厚度单位：nm）
@@ -326,26 +326,26 @@ def RefAbsRouCon(k0,lambda0,sigmaDW,d=[]):
     k1 = cmath.sqrt(k0**2-4*math.pi*rhoba1)
     k2 = cmath.sqrt(k0**2-4*math.pi*rhoba2)
     ks = cmath.sqrt(k0**2-4*math.pi*rhobs)
-    M[0][0] = (k2+ks)/(2*k2)*cmath.exp((sigmaDW*0.01)**2*k1*k2)
-    M[0][1] = (k2-ks)/(2*k2)*cmath.exp(-(sigmaDW*0.01)**2*k1*k2)
-    M[1][0] = (k2-ks)/(2*k2)*cmath.exp(-(sigmaDW*0.01)**2*k1*k2)
-    M[1][1] = (k2+ks)/(2*k2)*cmath.exp((sigmaDW*0.01)**2*k1*k2)
+    M[0][0] = (k2+ks)/(2*k2)*cmath.exp(sigmaDW**2*k1*k2)
+    M[0][1] = (k2-ks)/(2*k2)*cmath.exp(-sigmaDW**2*k1*k2)
+    M[1][0] = (k2-ks)/(2*k2)*cmath.exp(-sigmaDW**2*k1*k2)
+    M[1][1] = (k2+ks)/(2*k2)*cmath.exp(sigmaDW**2*k1*k2)
     #对矩阵元素进行归一化，防止膜层数目过多时矩阵元素数值过大溢出
     M = M/np.sum(M**2)
     j = 0
     #每个膜对逐次计算反射率，从最底层迭代上去，psi=ikd为计算公式中e的复指数
     while j < len(d):
-        psi2 = complex(0,k2*d[len(d)-1-j][2]*0.01)
-        M2[0][0] = (k1+k2)*cmath.exp(-psi2)/(2*k1)*cmath.exp((sigmaDW*0.01)**2*k1*k2)
-        M2[0][1] = (k1-k2)*cmath.exp(psi2)/(2*k1)*cmath.exp(-(sigmaDW*0.01)**2*k1*k2)
-        M2[1][0] = (k1-k2)*cmath.exp(-psi2)/(2*k1)*cmath.exp(-(sigmaDW*0.01)**2*k1*k2)
-        M2[1][1] = (k1+k2)*cmath.exp(psi2)/(2*k1)*cmath.exp((sigmaDW*0.01)**2*k1*k2)
+        psi2 = complex(0,k2*d[len(d)-1-j][2])
+        M2[0][0] = (k1+k2)*cmath.exp(-psi2)/(2*k1)*cmath.exp(sigmaDW**2*k1*k2)
+        M2[0][1] = (k1-k2)*cmath.exp(psi2)/(2*k1)*cmath.exp(-sigmaDW**2*k1*k2)
+        M2[1][0] = (k1-k2)*cmath.exp(-psi2)/(2*k1)*cmath.exp(-sigmaDW**2*k1*k2)
+        M2[1][1] = (k1+k2)*cmath.exp(psi2)/(2*k1)*cmath.exp(sigmaDW**2*k1*k2)
         M = np.dot(M2,M)
-        psi1 = complex(0,k1*d[len(d)-1-j][1]*0.01)
-        M1[0][0] = (k1+k2)*cmath.exp(-psi1)/(2*k2)*cmath.exp((sigmaDW*0.01)**2*k1*k2)
-        M1[0][1] = (k2-k1)*cmath.exp(psi1)/(2*k2)*cmath.exp(-(sigmaDW*0.01)**2*k1*k2)
-        M1[1][0] = (k2-k1)*cmath.exp(-psi1)/(2*k2)*cmath.exp(-(sigmaDW*0.01)**2*k1*k2)
-        M1[1][1] = (k1+k2)*cmath.exp(psi1)/(2*k2)*cmath.exp((sigmaDW*0.01)**2*k1*k2)
+        psi1 = complex(0,k1*d[len(d)-1-j][1])
+        M1[0][0] = (k1+k2)*cmath.exp(-psi1)/(2*k2)*cmath.exp(sigmaDW**2*k1*k2)
+        M1[0][1] = (k2-k1)*cmath.exp(psi1)/(2*k2)*cmath.exp(-sigmaDW**2*k1*k2)
+        M1[1][0] = (k2-k1)*cmath.exp(-psi1)/(2*k2)*cmath.exp(-sigmaDW**2*k1*k2)
+        M1[1][1] = (k1+k2)*cmath.exp(psi1)/(2*k2)*cmath.exp(sigmaDW**2*k1*k2)
         M = np.dot(M1,M)
         #对矩阵元素进行归一化，防止膜层数目过多时矩阵元素数值过大溢出
         M = M/np.sum(M**2)
@@ -354,17 +354,17 @@ def RefAbsRouCon(k0,lambda0,sigmaDW,d=[]):
     return abs(r)**2
 
 #Function1.1.8
-#考虑材料吸收中子,且粗糙度逐层增长条件下的反射率计算函数,采用矩阵方法
+#考虑材料吸收中子,且粗糙度逐层增长条件下的反射率计算函数，采用矩阵方法
 #输入参数为：
-#垂直方向的波矢分量k0（单位：0.01nm^-1），
+#垂直方向的波矢分量k0（单位：nm^-1），
 #基底均方根粗糙度sigma0（单位：nm），
 #粗糙度增长率h（单位：nm）,
 #膜对序列d=[[1,d11,d12]……[n,dn1.dn2]]（膜层厚度单位：nm）
 #输出：多层膜对入射波矢垂直分量为k0的中子的反射率
 def RefAbsRouGro(k0,lambda0,sigma0,h,d=[]):
     #计算两种材料的复数散射长度密度
-    rhoba1 = rho1*6.022/A1*complex(b1,-sigma1/(2*lambda0)*10**(-4))
-    rhoba2 = rho2*6.022/A2*complex(b2,-sigma2/(2*lambda0)*10**(-4))
+    rhoba1 = rho1*6.022/A1*complex(b1,-sigma1/(2*lambda0)*1e-4)*1e-4
+    rhoba2 = rho2*6.022/A2*complex(b2,-sigma2/(2*lambda0)*1e-4)*1e-4
     M = np.ones([2,2],dtype =complex)
     M2 = np.ones([2,2],dtype =complex)
     M1 = np.ones([2,2],dtype =complex)
@@ -373,10 +373,10 @@ def RefAbsRouGro(k0,lambda0,sigma0,h,d=[]):
     ks = cmath.sqrt(k0**2-4*math.pi*rhobs)
     D = 0
     sigma = sigma0
-    M[0][0] = (k2+ks)/(2*k2)*cmath.exp((sigma*0.01)**2*k1*k2)
-    M[0][1] = (k2-ks)/(2*k2)*cmath.exp(-(sigma*0.01)**2*k1*k2)
-    M[1][0] = (k2-ks)/(2*k2)*cmath.exp(-(sigma*0.01)**2*k1*k2)
-    M[1][1] = (k2+ks)/(2*k2)*cmath.exp((sigma*0.01)**2*k1*k2)
+    M[0][0] = (k2+ks)/(2*k2)*cmath.exp(sigma**2*k1*k2)
+    M[0][1] = (k2-ks)/(2*k2)*cmath.exp(-sigma**2*k1*k2)
+    M[1][0] = (k2-ks)/(2*k2)*cmath.exp(-sigma**2*k1*k2)
+    M[1][1] = (k2+ks)/(2*k2)*cmath.exp(sigma**2*k1*k2)
     #对矩阵元素进行归一化，防止膜层数目过多时矩阵元素数值过大溢出
     M = M/np.sum(M**2)
     j = 0
@@ -385,19 +385,19 @@ def RefAbsRouGro(k0,lambda0,sigma0,h,d=[]):
         #计算前面的膜层的累计厚度
         D = D+d[len(d)-1-j][2]
         sigma = math.sqrt(sigma0**2+h*D)
-        psi2 = complex(0,k2*d[len(d)-1-j][2]*0.01)
-        M2[0][0] = (k1+k2)*cmath.exp(-psi2)/(2*k1)*cmath.exp((sigma*0.01)**2*k1*k2)
-        M2[0][1] = (k1-k2)*cmath.exp(psi2)/(2*k1)*cmath.exp(-(sigma*0.01)**2*k1*k2)
-        M2[1][0] = (k1-k2)*cmath.exp(-psi2)/(2*k1)*cmath.exp(-(sigma*0.01)**2*k1*k2)
-        M2[1][1] = (k1+k2)*cmath.exp(psi2)/(2*k1)*cmath.exp((sigma*0.01)**2*k1*k2)
+        psi2 = complex(0,k2*d[len(d)-1-j][2])
+        M2[0][0] = (k1+k2)*cmath.exp(-psi2)/(2*k1)*cmath.exp(sigma**2*k1*k2)
+        M2[0][1] = (k1-k2)*cmath.exp(psi2)/(2*k1)*cmath.exp(-sigma**2*k1*k2)
+        M2[1][0] = (k1-k2)*cmath.exp(-psi2)/(2*k1)*cmath.exp(-sigma**2*k1*k2)
+        M2[1][1] = (k1+k2)*cmath.exp(psi2)/(2*k1)*cmath.exp(sigma**2*k1*k2)
         M = np.dot(M2,M)
         D = D+d[len(d)-1-j][2]
         sigma = math.sqrt(sigma0**2+h*D)
-        psi1 = complex(0,k1*d[len(d)-1-j][1]*0.01)
-        M1[0][0] = (k1+k2)*cmath.exp(-psi1)/(2*k2)*cmath.exp((sigma*0.01)**2*k1*k2)
-        M1[0][1] = (k2-k1)*cmath.exp(psi1)/(2*k2)*cmath.exp(-(sigma*0.01)**2*k1*k2)
-        M1[1][0] = (k2-k1)*cmath.exp(-psi1)/(2*k2)*cmath.exp(-(sigma*0.01)**2*k1*k2)
-        M1[1][1] = (k1+k2)*cmath.exp(psi1)/(2*k2)*cmath.exp((sigma*0.01)**2*k1*k2)
+        psi1 = complex(0,k1*d[len(d)-1-j][1])
+        M1[0][0] = (k1+k2)*cmath.exp(-psi1)/(2*k2)*cmath.exp(sigma**2*k1*k2)
+        M1[0][1] = (k2-k1)*cmath.exp(psi1)/(2*k2)*cmath.exp(-sigma**2*k1*k2)
+        M1[1][0] = (k2-k1)*cmath.exp(-psi1)/(2*k2)*cmath.exp(-sigma**2*k1*k2)
+        M1[1][1] = (k1+k2)*cmath.exp(psi1)/(2*k2)*cmath.exp(sigma**2*k1*k2)
         M = np.dot(M1,M)
         #对矩阵元素进行归一化，防止膜层数目过多时矩阵元素数值过大溢出
         M = M/np.sum(M**2)
@@ -410,7 +410,7 @@ def RefAbsRouGro(k0,lambda0,sigma0,h,d=[]):
 #Function1.2.1
 #理想条件（无粗糙度）下的反射率计算函数,采用量子力学迭代计算
 #输入参数为：
-#垂直方向的波矢分量k0（单位：0.01nm^-1），
+#垂直方向的波矢分量k0（单位：nm^-1），
 #膜对序列d=[[1,d11,d12]……[n,dn1.dn2]]（膜层厚度单位：nm）
 #输出：多层膜对入射波矢垂直分量为k0的中子的反射率
 def Ref2(k0,d=[]):
@@ -422,10 +422,10 @@ def Ref2(k0,d=[]):
     #每个膜对逐次计算反射率，从最底层迭代上去，psi=2ikd为计算公式中e的复指数
     while k < len(d):
         R = (k1-k2)/(k1+k2)
-        psi = complex(0,2*k2*d[len(d)-1-k][2]*0.01)
+        psi = complex(0,2*k2*d[len(d)-1-k][2])
         r = (R+r*cmath.exp(psi))/(1+R*r*cmath.exp(psi))
         R = (k2-k1)/(k1+k2)
-        psi = complex(0,2*k1*d[len(d)-1-k][1]*0.01)
+        psi = complex(0,2*k1*d[len(d)-1-k][1])
         r = (R+r*cmath.exp(psi))/(1+R*r*cmath.exp(psi))
         k = k+1
     return abs(r)**2
@@ -433,14 +433,14 @@ def Ref2(k0,d=[]):
 #Function1.2.2
 #考虑材料吸收中子条件下的反射率计算函数,采用量子力学迭代计算
 #输入参数为：
-#垂直方向的波矢分量k0（单位：0.01nm^-1），
+#垂直方向的波矢分量k0（单位：nm^-1），
 #入射中子波长lambda0（单位：nm），
 #膜对序列d=[[1,d11,d12]……[n,dn1.dn2]]（膜层厚度单位：nm）
 #输出：多层膜对入射波矢垂直分量为k0的中子的反射率
 def RefAbs2(k0,lambda0,d=[]):
     #计算两种材料的复数散射长度密度
-    rhoba1 = rho1*6.022/A1*complex(b1,-sigma1/(2*lambda0)*10**(-4))
-    rhoba2 = rho2*6.022/A2*complex(b2,-sigma2/(2*lambda0)*10**(-4))
+    rhoba1 = rho1*6.022/A1*complex(b1,-sigma1/(2*lambda0)*1e-4)*1e-4
+    rhoba2 = rho2*6.022/A2*complex(b2,-sigma2/(2*lambda0)*1e-4)*1e-4
     k1 = cmath.sqrt(k0**2-4*math.pi*rhoba1)
     k2 = cmath.sqrt(k0**2-4*math.pi*rhoba2)
     ks = cmath.sqrt(k0**2-4*math.pi*rhobs)
@@ -449,10 +449,10 @@ def RefAbs2(k0,lambda0,d=[]):
     #每个膜对逐次计算反射率，从最底层迭代上去，psi=2ikd为计算公式中e的复指数
     while j < len(d):
         R = (k1-k2)/(k1+k2)
-        psi = complex(0,2*k2*d[len(d)-1-j][2]*0.01)
+        psi = complex(0,2*k2*d[len(d)-1-j][2])
         r = (R+r*cmath.exp(psi))/(1+R*r*cmath.exp(psi))
         R = (k2-k1)/(k1+k2)
-        psi = complex(0,2*k1*d[len(d)-1-j][1]*0.01)
+        psi = complex(0,2*k1*d[len(d)-1-j][1])
         r = (R+r*cmath.exp(psi))/(1+R*r*cmath.exp(psi))
         j = j+1
     return abs(r)**2
@@ -460,7 +460,7 @@ def RefAbs2(k0,lambda0,d=[]):
 #Function1.2.3
 #粗糙度为常数值条件下的反射率计算函数，采用量子力学迭代计算
 #输入参数为：
-#垂直方向的波矢分量k0（单位：0.01nm^-1），
+#垂直方向的波矢分量k0（单位：nm^-1），
 #均方根界面粗糙度sigmaDW（单位：nm），
 #膜对序列d=[[1,d11,d12]……[n,dn1.dn2]]（膜层厚度单位：nm）
 #输出：多层膜对入射波矢垂直分量为k0的中子的反射率
@@ -468,15 +468,15 @@ def RefRouCon2(k0,sigmaDW,d=[]):
     k1 = cmath.sqrt(k0**2-4*math.pi*rhob1)
     k2 = cmath.sqrt(k0**2-4*math.pi*rhob2)
     ks = cmath.sqrt(k0**2-4*math.pi*rhobs)
-    r = (k2-ks)/(k2+ks)*cmath.exp(-(2*sigmaDW*0.01)**2*k1*k2/2)
+    r = (k2-ks)/(k2+ks)*cmath.exp(-(2*sigmaDW)**2*k1*k2/2)
     j = 0
     #每个膜对逐次计算反射率，从最底层迭代上去，psi=2ikd为计算公式中e的复指数
     while j < len(d):
-        R = (k1-k2)/(k1+k2)*cmath.exp(-(2*sigmaDW*0.01)**2*k1*k2/2)
-        psi = complex(0,2*k2*d[len(d)-1-j][2]*0.01)
+        R = (k1-k2)/(k1+k2)*cmath.exp(-(2*sigmaDW)**2*k1*k2/2)
+        psi = complex(0,2*k2*d[len(d)-1-j][2])
         r = (R+r*cmath.exp(psi))/(1+R*r*cmath.exp(psi))
-        R = (k2-k1)/(k1+k2)*cmath.exp(-(2*sigmaDW*0.01)**2*k1*k2/2)
-        psi = complex(0,2*k1*d[len(d)-1-j][1]*0.01)
+        R = (k2-k1)/(k1+k2)*cmath.exp(-(2*sigmaDW)**2*k1*k2/2)
+        psi = complex(0,2*k1*d[len(d)-1-j][1])
         r = (R+r*cmath.exp(psi))/(1+R*r*cmath.exp(psi))
         j = j+1
     return abs(r)**2
@@ -484,7 +484,7 @@ def RefRouCon2(k0,sigmaDW,d=[]):
 #Function1.2.4
 #粗糙度逐层增长条件下的反射率计算函数,采用量子力学迭代计算
 #输入参数为：
-#垂直方向的波矢分量k0（单位：0.01nm^-1），
+#垂直方向的波矢分量k0（单位：nm^-1），
 #基底均方根粗糙度sigma0（单位：nm），
 #粗糙度增长率h（单位：nm）,
 #膜对序列d=[[1,d11,d12]……[n,dn1.dn2]]（膜层厚度单位：nm）
@@ -495,20 +495,20 @@ def RefRouGro2(k0,sigma0,h,d=[]):
     ks = cmath.sqrt(k0**2-4*math.pi*rhobs)
     D = 0
     sigma = sigma0
-    r = (k2-ks)/(k2+ks)*cmath.exp(-(2*sigma*0.01)**2*k1*k2/2)
+    r = (k2-ks)/(k2+ks)*cmath.exp(-(2*sigma)**2*k1*k2/2)
     j = 0
     #每个膜对逐次计算反射率，从最底层迭代上去，psi=2ikd为计算公式中e的复指数
     while j < len(d):
         #计算前面的膜层的累计厚度
         D = D+d[len(d)-1-j][2]
         sigma = math.sqrt(sigma0**2+h*D)
-        R = (k1-k2)/(k1+k2)*cmath.exp(-(2*sigma*0.01)**2*k1*k2/2)
-        psi = complex(0,2*k2*d[len(d)-1-j][2]*0.01)
+        R = (k1-k2)/(k1+k2)*cmath.exp(-(2*sigma)**2*k1*k2/2)
+        psi = complex(0,2*k2*d[len(d)-1-j][2])
         r = (R+r*cmath.exp(psi))/(1+R*r*cmath.exp(psi))
         D = D+d[len(d)-1-j][1]
         sigma = math.sqrt(sigma0**2+h*D)
-        R = (k2-k1)/(k1+k2)*cmath.exp(-(2*sigma*0.01)**2*k1*k2/2)
-        psi = complex(0,2*k1*d[len(d)-1-j][1]*0.01)
+        R = (k2-k1)/(k1+k2)*cmath.exp(-(2*sigma)**2*k1*k2/2)
+        psi = complex(0,2*k1*d[len(d)-1-j][1])
         r = (R+r*cmath.exp(psi))/(1+R*r*cmath.exp(psi))
         j = j+1
     return abs(r)**2
@@ -516,7 +516,7 @@ def RefRouGro2(k0,sigma0,h,d=[]):
 #Function1.2.5
 #粗糙度逐层增长且增长率随机的条件下的反射率计算函数,采用量子力学迭代计算
 #输入参数为：
-#垂直方向的波矢分量k0（单位：0.01nm^-1），
+#垂直方向的波矢分量k0（单位：nm^-1），
 #基底均方根粗糙度sigma0（单位：nm），
 #粗糙度增长率的随机变化范围hmin,hmax（单位：nm）,
 #膜对序列d=[[1,d11,d12]……[n,dn1.dn2]]（膜层厚度单位：nm）
@@ -527,7 +527,7 @@ def RefRouRan2(k0,sigma0,hmin,hmax,d=[]):
     ks = cmath.sqrt(k0**2-4*math.pi*rhobs)
     D = 0
     sigma = sigma0
-    r = (k2-ks)/(k2+ks)*cmath.exp(-(2*sigma*0.01)**2*k1*k2/2)
+    r = (k2-ks)/(k2+ks)*cmath.exp(-(2*sigma)**2*k1*k2/2)
     j = 0
     #每个膜对逐次计算反射率，从最底层迭代上去，psi=2ikd为计算公式中e的复指数
     while j < len(d):
@@ -539,8 +539,8 @@ def RefRouRan2(k0,sigma0,hmin,hmax,d=[]):
         else:
             sigma = 0
         #sigma = math.sqrt(abs(sigma0**2+random.uniform(hmin,hmax)*D))
-        R = (k1-k2)/(k1+k2)*cmath.exp(-(2*sigma*0.01)**2*k1*k2/2)
-        psi = complex(0,2*k2*d[len(d)-1-j][2]*0.01)
+        R = (k1-k2)/(k1+k2)*cmath.exp(-(2*sigma)**2*k1*k2/2)
+        psi = complex(0,2*k2*d[len(d)-1-j][2])
         r = (R+r*cmath.exp(psi))/(1+R*r*cmath.exp(psi))
         D = D+d[len(d)-1-j][1]
         h = random.uniform(hmin,hmax)
@@ -549,8 +549,8 @@ def RefRouRan2(k0,sigma0,hmin,hmax,d=[]):
         else:
             sigma = 0
         #sigma = math.sqrt(abs(sigma0**2+random.uniform(hmin,hmax)*D))
-        R = (k2-k1)/(k1+k2)*cmath.exp(-(2*sigma*0.01)**2*k1*k2/2)
-        psi = complex(0,2*k1*d[len(d)-1-j][1]*0.01)
+        R = (k2-k1)/(k1+k2)*cmath.exp(-(2*sigma)**2*k1*k2/2)
+        psi = complex(0,2*k1*d[len(d)-1-j][1])
         r = (R+r*cmath.exp(psi))/(1+R*r*cmath.exp(psi))
         j = j+1
     return abs(r)**2
@@ -558,27 +558,27 @@ def RefRouRan2(k0,sigma0,hmin,hmax,d=[]):
 #Function1.2.6
 #考虑材料吸收中子,且粗糙度为常数值条件下的反射率计算函数,采用量子力学迭代计算
 #输入参数为：
-#垂直方向的波矢分量k0（单位：0.01nm^-1），
+#垂直方向的波矢分量k0（单位：nm^-1），
 #入射中子波长lambda0（单位：nm），
 #均方根界面粗糙度sigmaDW（单位：nm），
 #膜对序列d=[[1,d11,d12]……[n,dn1.dn2]]（膜层厚度单位：nm）
 #输出：多层膜对入射波矢垂直分量为k0的中子的反射率
 def RefAbsRouCon2(k0,lambda0,sigmaDW,d=[]):
     #计算两种材料的复数散射长度密度
-    rhoba1 = rho1*6.022/A1*complex(b1,-sigma1/(2*lambda0)*10**(-4))
-    rhoba2 = rho2*6.022/A2*complex(b2,-sigma2/(2*lambda0)*10**(-4))
+    rhoba1 = rho1*6.022/A1*complex(b1,-sigma1/(2*lambda0)*1e-4)*1e-4
+    rhoba2 = rho2*6.022/A2*complex(b2,-sigma2/(2*lambda0)*1e-4)*1e-4
     k1 = cmath.sqrt(k0**2-4*math.pi*rhoba1)
     k2 = cmath.sqrt(k0**2-4*math.pi*rhoba2)
     ks = cmath.sqrt(k0**2-4*math.pi*rhobs)
-    r = (k2-ks)/(k2+ks)*cmath.exp(-(2*sigmaDW*0.01)**2*k1*k2/2)
+    r = (k2-ks)/(k2+ks)*cmath.exp(-(2*sigmaDW)**2*k1*k2/2)
     j = 0
     #每个膜对逐次计算反射率，从最底层迭代上去，psi=2ikd为计算公式中e的复指数
     while j < len(d):
-        R = (k1-k2)/(k1+k2)*cmath.exp(-(2*sigmaDW*0.01)**2*k1*k2/2)
-        psi = complex(0,2*k2*d[len(d)-1-j][2]*0.01)
+        R = (k1-k2)/(k1+k2)*cmath.exp(-(2*sigmaDW)**2*k1*k2/2)
+        psi = complex(0,2*k2*d[len(d)-1-j][2])
         r = (R+r*cmath.exp(psi))/(1+R*r*cmath.exp(psi))
-        R = (k2-k1)/(k1+k2)*cmath.exp(-(2*sigmaDW*0.01)**2*k1*k2/2)
-        psi = complex(0,2*k1*d[len(d)-1-j][1]*0.01)
+        R = (k2-k1)/(k1+k2)*cmath.exp(-(2*sigmaDW)**2*k1*k2/2)
+        psi = complex(0,2*k1*d[len(d)-1-j][1])
         r = (R+r*cmath.exp(psi))/(1+R*r*cmath.exp(psi))
         j = j+1
     return abs(r)**2
@@ -586,34 +586,34 @@ def RefAbsRouCon2(k0,lambda0,sigmaDW,d=[]):
 #Function1.2.7
 #考虑材料吸收中子,且粗糙度逐层增长条件下的反射率计算函数,采用量子力学迭代计算
 #输入参数为：
-#垂直方向的波矢分量k0（单位：0.01nm^-1），
+#垂直方向的波矢分量k0（单位：nm^-1），
 #基底均方根粗糙度sigma0（单位：nm），
 #粗糙度增长率h（单位：nm）,
 #膜对序列d=[[1,d11,d12]……[n,dn1.dn2]]（膜层厚度单位：nm）
 #输出：多层膜对入射波矢垂直分量为k0的中子的反射率
 def RefAbsRouGro2(k0,lambda0,sigma0,h,d=[]):
     #计算两种材料的复数散射长度密度
-    rhoba1 = rho1*6.022/A1*complex(b1,-sigma1/(2*lambda0)*10**(-4))
-    rhoba2 = rho2*6.022/A2*complex(b2,-sigma2/(2*lambda0)*10**(-4))
+    rhoba1 = rho1*6.022/A1*complex(b1,-sigma1/(2*lambda0)*1e-4)*1e-4
+    rhoba2 = rho2*6.022/A2*complex(b2,-sigma2/(2*lambda0)*1e-4)*1e-4
     k1 = cmath.sqrt(k0**2-4*math.pi*rhoba1)
     k2 = cmath.sqrt(k0**2-4*math.pi*rhoba2)
     ks = cmath.sqrt(k0**2-4*math.pi*rhobs)
     D = 0
     sigma = sigma0
-    r = (k2-ks)/(k2+ks)*cmath.exp(-(2*sigma*0.01)**2*k1*k2/2)
+    r = (k2-ks)/(k2+ks)*cmath.exp(-(2*sigma)**2*k1*k2/2)
     j = 0
     #每个膜对逐次计算反射率，从最底层迭代上去，psi=2ikd为计算公式中e的复指数
     while j < len(d):
         #计算前面的膜层的累计厚度
         D = D+d[len(d)-1-j][2]
         sigma = math.sqrt(sigma0**2+h*D)
-        R = (k1-k2)/(k1+k2)*cmath.exp(-(2*sigma*0.01)**2*k1*k2/2)
-        psi = complex(0,2*k2*d[len(d)-1-j][2]*0.01)
+        R = (k1-k2)/(k1+k2)*cmath.exp(-(2*sigma)**2*k1*k2/2)
+        psi = complex(0,2*k2*d[len(d)-1-j][2])
         r = (R+r*cmath.exp(psi))/(1+R*r*cmath.exp(psi))
         D = D+d[len(d)-1-j][1]
         sigma = math.sqrt(sigma0**2+h*D)
-        R = (k2-k1)/(k1+k2)*cmath.exp(-(2*sigma*0.01)**2*k1*k2/2)
-        psi = complex(0,2*k1*d[len(d)-1-j][1]*0.01)
+        R = (k2-k1)/(k1+k2)*cmath.exp(-(2*sigma)**2*k1*k2/2)
+        psi = complex(0,2*k1*d[len(d)-1-j][1])
         r = (R+r*cmath.exp(psi))/(1+R*r*cmath.exp(psi))
         j = j+1
     return abs(r)**2
@@ -625,7 +625,7 @@ def RefAbsRouGro2(k0,lambda0,sigma0,h,d=[]):
 #计算反射率曲线在1~m范围内的平均反射率
 #输入参数为：
 #反射率曲线的m值，
-#一定范围的波矢垂直分量x（单位：0.01nm^-1），
+#一定范围的波矢垂直分量x（单位：nm^-1），
 #与该波矢垂直分量对应的反射率y
 #输出：反射率曲线在1~m范围内的平均反射率
 def AveR(m,x=[],y=[]):
@@ -652,7 +652,7 @@ def AveR(m,x=[],y=[]):
 #计算反射率曲线在0~m范围内的平均反射率
 #输入参数为：
 #反射率曲线的m值，
-#一定范围的波矢垂直分量x（单位：0.01nm^-1），
+#一定范围的波矢垂直分量x（单位：nm^-1），
 #与该波矢垂直分量对应的反射率y
 #输出：反射率曲线在0~m范围内的平均反射率
 def AveRF(m,x=[],y=[]):
@@ -690,7 +690,7 @@ def SM(m,beta):
     d = [[1,70,0]]
     #迭代起点
     #前五层单独处理
-    D0 = math.pi/(1.005*qc1)*100
+    D0 = math.pi/(1.005*qc1)
     d.append([2,D0/2,D0/2])
     d.append([3,D0/2,D0/2])
     d.append([4,D0/2,D0/2])
@@ -700,7 +700,7 @@ def SM(m,beta):
     #从n=4开始也是为了利用上n=4,5的厚度，避免前五层与第六层厚度差异太大，出现反射率下掉
     n = 4
     while n < N:
-        D = Q12*math.pi/(qc1*((1+beta**(-1)*(n+b))**(1/2)-1)**(1/2))*100
+        D = Q12*math.pi/(qc1*((1+beta**(-1)*(n+b))**(1/2)-1)**(1/2))
         d.append([n+3,D/2,D/2])
         n = n+1
     return d
@@ -713,11 +713,11 @@ def SM(m,beta):
 #输出：膜对序列d=[[1,d11,d12]……[n,dn1.dn2]]（膜层厚度单位：nm）
 def RSD(m,RL):
     #计算特征波长
-    lambdaNi = math.sqrt(math.pi/rhob1)*100
-    lambdaTi2 = math.pi/rhob2*10000
+    lambdaNi = math.sqrt(math.pi/rhob1)
+    lambdaTi2 = math.pi/rhob2
     lambdaSM = lambdaNi/m
     #Ni的全反射临界波矢
-    kNi = 2*math.pi/lambdaNi*100
+    kNi = 2*math.pi/lambdaNi
     #迭代计算过程
     #迭代起点	
     k = m*kNi
@@ -760,9 +760,9 @@ def GRB(m,R):
     alpha =4/(math.atanh(math.sqrt(R)))**2
     #中间参数计算
     #特征波长
-    lambdac = math.sqrt(math.pi/(rhob1-rhob2))*100
-    lambdaNi = math.sqrt(math.pi/rhob1)*100
-    lambdaTi2 = math.pi/rhob2*10000
+    lambdac = math.sqrt(math.pi/(rhob1-rhob2))
+    lambdaNi = math.sqrt(math.pi/rhob1)
+    lambdaTi2 = math.pi/rhob2
     lambdaSM = lambdaNi/m
     #计算过程：
     #迭代起点
@@ -816,7 +816,7 @@ def IM(N):
     lambda0 = 0.2
     #中间参数计算
     #Ni的布拉格衍射厚度
-    dc = lambda0/(2*math.asin(lambda0*math.sqrt(rhob1/math.pi)*0.01))
+    dc = lambda0/(2*math.asin(lambda0*math.sqrt(rhob1/math.pi)))
     #迭代计算过程
     #迭代起点	
     #xi0 = 2-math.sqrt(2)
@@ -869,8 +869,8 @@ def IC(m,R):
     #计算两种材料界面的反射系数
     r21 = (k2-k1)/(k2+k1)
     #计算两层膜的厚度
-    d1 = math.pi/(2*k1)*100
-    d2 = math.pi/(2*k2)*100
+    d1 = math.pi/(2*k1)
+    d2 = math.pi/(2*k2)
     #计算所需膜对数量
     zeta = (1-R)/2
     N = math.ceil(abs(math.log(zeta))/(2*math.sqrt(2)*r21))
@@ -884,8 +884,8 @@ def IC(m,R):
         k1 = math.sqrt(k**2-4*math.pi*rhob1)
         k2 = math.sqrt(k**2-4*math.pi*rhob2)
         r21 = (k2-k1)/(k2+k1)
-        d1 = math.pi/(2*k1)*100
-        d2 = math.pi/(2*k2)*100
+        d1 = math.pi/(2*k1)
+        d2 = math.pi/(2*k2)
         N = math.ceil(abs(math.log(zeta))/(2*math.sqrt(2)*r21))
         dk = math.sqrt(2)*k*r21/math.pi
         M.append([N,d1,d2])
@@ -901,11 +901,11 @@ def IC(m,R):
     k = 1.28*kc
     k1 = math.sqrt(k**2-4*math.pi*rhob1)
     k2 = math.sqrt(k**2-4*math.pi*rhob2)
-    d1 = math.pi/(2*k1)*100
-    d2 = math.pi/(2*k2)*100
+    d1 = math.pi/(2*k1)
+    d2 = math.pi/(2*k2)
     #原文在膜对最表面和最底层各加上一层Ni
     #在k=1.28kc处补上五个相同膜对
-    d = [[1,10/kc*100,0],
+    d = [[1,10/kc,0],
          [2,d1,d2],
          [3,d1,d2],
          [4,d1,d2],
@@ -924,7 +924,7 @@ def IC(m,R):
             n = n+1
         i = i+1
     #原文在膜对最表面和最底层各加上一层Ni
-    d.append([j+1,10/kc*100,0])
+    d.append([j+1,10/kc,0])
     v = v+1+5+1
     return d
 
@@ -941,7 +941,7 @@ def Mas(m,R):
     #计算Ni的全反射临界波矢kc
     kc = math.sqrt(4*math.pi*rhob1)
     #计算膜对厚度（单位：nm）
-    D = math.pi*(1/math.sqrt(m*m-1)+1/math.sqrt(m*m-rho))/(2*kc)*100
+    D = math.pi*(1/math.sqrt(m*m-1)+1/math.sqrt(m*m-rho))/(2*kc)
     #计算两个单层分别的厚度
     a = D/(1+C)
     b = C*a
@@ -1002,7 +1002,7 @@ def IMtest(N,xi0,dd):
     lambda0 = 0.2
     #中间参数计算
     #Ni的布拉格衍射厚度
-    dc = lambda0/(2*math.asin(lambda0*math.sqrt(rhob1/math.pi)*0.01))
+    dc = lambda0/(2*math.asin(lambda0*math.sqrt(rhob1/math.pi)))
     #迭代计算过程
     #迭代起点	
     #xi0 = 2-math.sqrt(2)
@@ -1058,7 +1058,7 @@ def SMtest(m,beta,R,Gamma):
     d = [[1,70,0]]
     #迭代起点
     #前五层单独处理
-    D0 = math.pi/(1.005*qc1)*100
+    D0 = math.pi/(1.005*qc1)
     d.append([2,D0/2,D0/2])
     d.append([3,D0/2,D0/2])
     d.append([4,D0/2,D0/2])
@@ -1068,7 +1068,7 @@ def SMtest(m,beta,R,Gamma):
     #从n=4开始也是为了利用上n=4,5的厚度，避免前五层与第六层厚度差异太大，出现反射率下掉
     n = 4
     while n < N:
-        D = Q12*math.pi/(qc1*((1+beta**(-1)*(n+b))**(1/2)-1)**(1/2))*100
+        D = Q12*math.pi/(qc1*((1+beta**(-1)*(n+b))**(1/2)-1)**(1/2))
         d.append([n+3,D*Gamma,D*(1-Gamma)])
         n = n+1
     return d
@@ -1119,8 +1119,8 @@ def ICtest(m,R,a,w):
     #计算两种材料界面的反射系数
     r21 = (k2-k1)/(k2+k1)
     #计算两层膜的厚度
-    d1 = math.pi/(2*k1)*100
-    d2 = math.pi/(2*k2)*100
+    d1 = math.pi/(2*k1)
+    d2 = math.pi/(2*k2)
     #计算所需膜对数量
     zeta = (1-R)/2
     N = math.ceil(abs(math.log(zeta))/(2*math.sqrt(2)*r21))
@@ -1134,8 +1134,8 @@ def ICtest(m,R,a,w):
         k1 = math.sqrt(k**2-4*math.pi*rhob1)
         k2 = math.sqrt(k**2-4*math.pi*rhob2)
         r21 = (k2-k1)/(k2+k1)
-        d1 = math.pi/(2*k1)*100
-        d2 = math.pi/(2*k2)*100
+        d1 = math.pi/(2*k1)
+        d2 = math.pi/(2*k2)
         N = math.ceil(abs(math.log(zeta))/(2*math.sqrt(2)*r21))
         dk = math.sqrt(2)*k*r21/math.pi
         M.append([N,d1,d2])
@@ -1151,11 +1151,11 @@ def ICtest(m,R,a,w):
     k = 1.28*kc
     k1 = math.sqrt(k**2-4*math.pi*rhob1)
     k2 = math.sqrt(k**2-4*math.pi*rhob2)
-    d1 = math.pi/(2*k1)*100
-    d2 = math.pi/(2*k2)*100
+    d1 = math.pi/(2*k1)
+    d2 = math.pi/(2*k2)
     #原文在膜对最表面和最底层各加上一层Ni
     #在k=1.28kc处补上五个相同膜对
-    d = [[1,10/kc*100,0],
+    d = [[1,10/kc,0],
          [2,d1,d2],
          [3,d1,d2],
          [4,d1,d2],
@@ -1174,7 +1174,7 @@ def ICtest(m,R,a,w):
             n = n+1
         i = i+1
     #原文在膜对最表面和最底层各加上一层Ni
-    d.append([j+1,10/kc*100,0])
+    d.append([j+1,10/kc,0])
     v = v+1+5+1
     return d
 
@@ -1211,7 +1211,7 @@ def BraggHeightandWidth(N,d1,d2,k0):
 #Function6.1
 #本函数得到的m值为反射率下降到约为0.5的位置
 def RefFit(d=[]):
-    x0 = np.arange(0, 11*kc, 0.1)
+    x0 = np.arange(0, 11*kc, 0.001)
     y = np.ones(len(x0))
     j = 0
     for x in x0:
@@ -1229,7 +1229,7 @@ def RefFit(d=[]):
 #Function6.2
 #本函数得到的m值为反射率下降沿起点的位置
 def RefFit2(d=[]):
-    x0 = np.arange(0, 11*kc, 0.1)
+    x0 = np.arange(0, 11*kc, 0.001)
     y = np.ones(len(x0))
     j = 0
     for x in x0:
@@ -1254,7 +1254,7 @@ def RefFit2(d=[]):
 #本函数适用于引入常数粗糙度的情形
 #本函数得到的m值为反射率下降沿起点的位置
 def RefFitRouCon(sigmaDW,d=[]):
-    x0 = np.arange(0, 11*kc, 0.1)
+    x0 = np.arange(0, 11*kc, 0.001)
     y = np.ones(len(x0))
     j = 0
     for x in x0:
@@ -1279,7 +1279,7 @@ def RefFitRouCon(sigmaDW,d=[]):
 #本函数适用于引入逐层制造的粗糙度的情形
 #本函数得到的m值为反射率下降沿起点的位置
 def RefFitRouGro(sigma0,h,d=[]):
-    x0 = np.arange(0, 11*kc, 0.1)
+    x0 = np.arange(0, 11*kc, 0.001)
     y = np.ones(len(x0))
     j = 0
     for x in x0:
@@ -1312,7 +1312,7 @@ def RefFitRouGro(sigma0,h,d=[]):
 #计算单个算法生成的膜对序列引入膜对制造误差后的平均反射率、拟合m值
 #输入参数为相对误差
 def ThiErr(d,ddmin,ddmax):
-    x0 = np.arange(0, 60, 0.1)
+    x0 = np.arange(0, 0.6*len(d)/200, 0.001)
     m0 = RefFit2(d)[0]
     y0 = np.ones(len(x0))
     j = 0
@@ -1343,7 +1343,7 @@ def ThiErr(d,ddmin,ddmax):
 #计算单个算法生成的膜对序列引入膜对制造误差后的平均反射率、拟合m值
 #输入参数为绝对误差，单位nm；随机数符合高斯分布
 def ThiErrAbs(d,loc,scale):
-    x0 = np.arange(0, 60, 0.1)
+    x0 = np.arange(0, 0.6*len(d)/200, 0.001)
     m0 = RefFit2(d)[0]
     y0 = np.ones(len(x0))
     j = 0
@@ -1394,9 +1394,9 @@ def GRBopt(m,R,sigmaDW):
     alpha =4/(math.atanh(math.sqrt(R)))**2
     #中间参数计算
     #特征波长
-    lambdac = math.sqrt(math.pi/(rhob1-rhob2))*100
-    lambdaNi = math.sqrt(math.pi/rhob1)*100
-    lambdaTi2 = math.pi/rhob2*10000
+    lambdac = math.sqrt(math.pi/(rhob1-rhob2))
+    lambdaNi = math.sqrt(math.pi/rhob1)
+    lambdaTi2 = math.pi/rhob2
     lambdaSM = lambdaNi/m
     #计算过程：
     #迭代起点
@@ -1435,11 +1435,11 @@ def RSDplus(m,func):
 
     #中间参数计算
     #特征波长
-    lambdaNi = math.sqrt(math.pi/rhob1)*100
-    lambdaTi2 = math.pi/rhob2*10000
+    lambdaNi = math.sqrt(math.pi/rhob1)
+    lambdaTi2 = math.pi/rhob2
     lambdaSM = lambdaNi/m
     #Ni的全反射临界波矢
-    kNi = 2*math.pi/lambdaNi*100
+    kNi = 2*math.pi/lambdaNi
     #迭代计算过程
     #迭代起点	
     k = m*kNi
